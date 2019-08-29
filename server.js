@@ -9,7 +9,30 @@ var listingData, server;
 var requestHandler = function(request, response) {
   var parsedUrl = url.parse(request.url);
 
-  /*
+  if(parsedUrl.pathname == '/listings' && request.method === 'GET') //if accessed correctly
+  {
+    response.writeHead(200, {'Content-Type': 'text/plain'}) //status code 200 is good to go
+    response.write(JSON.stringify(listingData)) //listings JSON becomes a JSON string 
+    response.end(); //I didn't forget :D
+  }
+  else 
+  {
+    response.writeHead(404, {'Content-Type': 'text/plain'})
+    response.write('Bad gateway error');
+    response.end();
+  }
+};
+  
+fs.readFile('listings.json', 'utf8', function(err, data) {
+  if (err)
+    throw err; //this is my error handler <---
+
+  listingData = JSON.parse(data); //.json is now just the string
+  http.createServer(requestHandler).listen(port); //server created with requestHandler function
+  console.log('server is on bro');
+});
+
+/*
     Your request handler should send listingData in the JSON format as a response if a GET request 
     is sent to the '/listings' path. Otherwise, it should send a 404 error. 
 
@@ -24,9 +47,6 @@ var requestHandler = function(request, response) {
     HINT: Explore the list of MIME Types
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
    */
-};
-
-fs.readFile('listings.json', 'utf8', function(err, data) {
   /*
     This callback function should save the data in the listingData variable, 
     then start the server. 
@@ -43,9 +63,4 @@ fs.readFile('listings.json', 'utf8', function(err, data) {
    //Save the sate in the listingData variable already defined
   
 
-  //Creates the server
-  
-  //Start the server
 
-
-});
