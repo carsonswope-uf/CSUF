@@ -1,36 +1,85 @@
 /* Add all the required libraries*/
 
-/* Connect to your database using mongoose - remember to keep your key secret*/
+const fs = require('fs'),
+    mongoose = require('mongoose'), 
+    Schema = mongoose.Schema, 
+    ListingSchema = require('./ListingSchema.js'), 
+    config = require('./config');
+    
 
+/* Connect to your database using mongoose - remember to keep your key secret*/
+mongoose.connect(config.db.uri);
+
+const mongooseConnection = mongoose.connection;
+
+mongooseConnection.on("connected", function() {
+  console.log('"barzungle? we in');
+});
+mongooseConnection.on("disconnected", function() {
+  console.log("see u later");
+});
 /* Fill out these functions using Mongoose queries*/
 //Check out - https://mongoosejs.com/docs/queries.html
 
-var findLibraryWest = function() {
-  /* 
-    Find the document that contains data corresponding to Library West,
-    then log it to the console. 
-   */
+const findLibraryWest = function() {
+  
+  //find each listing with name matching 'library west'
+  let query = ListingSchema.findOne({'code' : 'LBW'});
+  
+  //selecting the 'name' field
+  query.select('name');
+
+  query.exec(function (err, ListingSchema) {
+    if (err) return handleError(Err);
+
+    console.log('I found %s for ya!', ListingSchema.name);
+  });
+  
 };
-var removeCable = function() {
-  /*
-    Find the document with the code 'CABL'. This cooresponds with courses that can only be viewed 
-    on cable TV. Since we live in the 21st century and most courses are now web based, go ahead
-    and remove this listing from your database and log the document to the console. 
-   */
+const removeCable = function() {
+
+  let query = ListingSchema.deleteOne({'code' : 'CABL'});
+  
+  //selecting the 'name' field
+  query.select('name');
+
+  query.exec(function (err, ListingSchema) {
+    if (err) return handleError(Err);
+
+    console.log('I deleted %s for ya!', ListingSchema.name);
+  });
+
 };
-var updatePhelpsLab = function() {
-  /*
+
+
+
+const updatePhelpsLab = function() {
+
+  let query = {'address' : '701 N Broadway, Sleepy Hollow, NY 10591, United States'};
+
+  let updateFunction = ListingSchema.update(query, {'address' : '1953 Museum Rd, Gainesville, FL 32603, United States'});
+
+  updateFunction.exec(function (err, ListingSchema) {
+    if (err) return handleError(Err);
+    console.log('I updated %s for ya!', ListingSchema.address)
+  })
+
+    /*
     Phelps Lab address is incorrect. Find the listing, update it, and then 
     log the updated document to the console. 
    */
 };
-var retrieveAllListings = function() {
-  /* 
-    Retrieve all listings in the database, and log them to the console. 
-   */
-};
 
+const retrieveAllListings = function() {
+  const config = require('./config');
+  const collection = mongooseConnection.collection('listings');
+  
+  ListingSchema.find({},(function(err, collection) {
+      console.log(JSON.stringify(collection, null, 1));
+  })
+)};
+ 
 findLibraryWest();
 removeCable();
-updatePhelpsMemorial();
-retrieveAllListings();
+updatePhelpsLab();
+setTimeout(retrieveAllListings, 3000);
